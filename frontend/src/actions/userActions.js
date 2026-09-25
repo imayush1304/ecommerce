@@ -27,7 +27,7 @@ import {
     updateNestedProfileRequest,
     updateNestedProfileSuccess
 } from '../slices/authSlice'
-import axios from 'axios';
+import api from '../utils/api';
 import {
     deleteUserFail,
     deleteUserRequest,
@@ -47,7 +47,7 @@ import {
 export const login = (email, password) => async (dispatch) => {
     try {
         dispatch(loginRequest())
-        const { data } = await axios.post(`/api/v1/login`, { email, password }, { withCredentials: true })
+        const { data } = await api.post(`/api/v1/login`, { email, password })
         dispatch(loginSuccess(data.user));
     }
     catch (error) {
@@ -72,7 +72,7 @@ export const register = (userData) => async (dispatch) => {
             config.headers = { 'Content-type': 'application/json' };
         }
 
-        const { data } = await axios.post(`/api/v1/register`, userData, config);
+        const { data } = await api.post(`/api/v1/register`, userData, config);
         dispatch(registerSuccess(data.user));
     }
     catch (error) {
@@ -88,9 +88,7 @@ export const loadUser = () => async (dispatch) => {
     try {
         dispatch(loadUserRequest())
 
-        const { data } = await axios.get(`/api/v1/myprofile`, {
-            withCredentials: true
-        });
+        const { data } = await api.get(`/api/v1/myprofile`);
         dispatch(loadUserSuccess(data.user));
     }
     catch (error) {
@@ -103,7 +101,7 @@ export const loadUser = () => async (dispatch) => {
 }
 export const logout = () => async (dispatch) => {
     try {
-        await axios.get(`/api/v1/logout`, { withCredentials: true });
+        await api.get(`/api/v1/logout`);
         dispatch(logOutSuccess());
     }
     catch (error) {
@@ -121,7 +119,7 @@ export const updateProfile = (userData) => async (dispatch) => {
             config.headers = { 'Content-type': "multipart/form-data" };
         }
 
-        const { data } = await axios.put(`/api/v1/update`, userData, config);
+        const { data } = await api.put(`/api/v1/update`, userData, config);
         dispatch(updateProfileSuccess(data));
     }
     catch (error) {
@@ -137,12 +135,11 @@ export const updatePassword = (data) => async (dispatch) => {
     try {
         dispatch(updatePasswordRequest());
 
-        await axios.put(
+        await api.put(
             `/api/v1/password/change`,
             data,
             {
-                headers: { 'Content-type': 'application/json' },
-                withCredentials: true
+                headers: { 'Content-type': 'application/json' }
             }
         );
 
@@ -160,12 +157,11 @@ export const forgetPassword = (formData) => async (dispatch) => {
     try {
         dispatch(forgetPasswordRequest())
 
-        const { data } = await axios.post(
+        const { data } = await api.post(
             `/api/v1/password/forget`,
             formData,
             {
-                headers: { 'Content-type': 'application/json' },
-                withCredentials: true
+                headers: { 'Content-type': 'application/json' }
             }
         );
 
@@ -184,11 +180,10 @@ export const resetPassword = (token, formData) => async (dispatch) => {
     try {
         dispatch(resetPasswordRequest())
 
-        const { data } = await axios.post(`/api/v1/password/reset/${token}`,
+        const { data } = await api.post(`/api/v1/password/reset/${token}`,
             formData,
             {
-                headers: { 'Content-type': 'application/json' },
-                withCredentials: true
+                headers: { 'Content-type': 'application/json' }
             });
         dispatch(resetPasswordSuccess(data));
     }
@@ -205,9 +200,7 @@ export const getUsers = () => async (dispatch) => {
     try {
         dispatch(usersRequest())
 
-        const { data } = await axios.get(`/api/v1/admin/users`, {
-            withCredentials: true
-        });
+        const { data } = await api.get(`/api/v1/admin/users`);
         dispatch(usersSuccess({ users: data.users }));
     }
     catch (error) {
@@ -222,9 +215,7 @@ export const getUser = (id) => async (dispatch) => {
     try {
         dispatch(userRequest())
 
-        const { data } = await axios.get(`/api/v1/admin/user/${id}`, {
-            withCredentials: true
-        });
+        const { data } = await api.get(`/api/v1/admin/user/${id}`);
         // userSuccess expects payload shaped as { user: ... }
         dispatch(userSuccess({ user: data.user }));
     }
@@ -239,9 +230,7 @@ export const getUser = (id) => async (dispatch) => {
 export const deleteUser = (id) => async (dispatch) => {
     try {
         dispatch(deleteUserRequest())
-        await axios.delete(`/api/v1/admin/user/${id}`, {
-            withCredentials: true
-        });
+        await api.delete(`/api/v1/admin/user/${id}`);
         dispatch(deleteUserSuccess());
     }
     catch (error) {
@@ -262,7 +251,7 @@ export const updateUser = (id,formData) => async (dispatch) => {
             headers: isFormData ? { 'Content-type': 'multipart/form-data' } : { 'Content-type': 'application/json' }
         };
 
-        await axios.put(
+        await api.put(
             `/api/v1/admin/user/${id}`,
             formData,
             config
@@ -286,7 +275,7 @@ export const updateUser = (id,formData) => async (dispatch) => {
 export const addAddress = (addressData) => async (dispatch) => {
     try {
         dispatch(updateNestedProfileRequest());
-        const { data } = await axios.post(`/api/v1/address`, addressData, { withCredentials: true });
+        const { data } = await api.post(`/api/v1/address`, addressData);
         dispatch(updateNestedProfileSuccess({ addresses: data.addresses }));
     } catch (error) {
         dispatch(updateNestedProfileFail(error.response?.data?.message || error.message));
@@ -296,7 +285,7 @@ export const addAddress = (addressData) => async (dispatch) => {
 export const updateAddress = (id, addressData) => async (dispatch) => {
     try {
         dispatch(updateNestedProfileRequest());
-        const { data } = await axios.put(`/api/v1/address/${id}`, addressData, { withCredentials: true });
+        const { data } = await api.put(`/api/v1/address/${id}`, addressData);
         dispatch(updateNestedProfileSuccess({ addresses: data.addresses }));
     } catch (error) {
         dispatch(updateNestedProfileFail(error.response?.data?.message || error.message));
@@ -306,7 +295,7 @@ export const updateAddress = (id, addressData) => async (dispatch) => {
 export const deleteAddress = (id) => async (dispatch) => {
     try {
         dispatch(updateNestedProfileRequest());
-        const { data } = await axios.delete(`/api/v1/address/${id}`, { withCredentials: true });
+        const { data } = await api.delete(`/api/v1/address/${id}`);
         dispatch(updateNestedProfileSuccess({ addresses: data.addresses }));
     } catch (error) {
         dispatch(updateNestedProfileFail(error.response?.data?.message || error.message));
@@ -316,7 +305,7 @@ export const deleteAddress = (id) => async (dispatch) => {
 export const addPaymentMethod = (paymentData) => async (dispatch) => {
     try {
         dispatch(updateNestedProfileRequest());
-        const { data } = await axios.post(`/api/v1/payment-method`, paymentData, { withCredentials: true });
+        const { data } = await api.post(`/api/v1/payment-method`, paymentData);
         dispatch(updateNestedProfileSuccess({ paymentMethods: data.paymentMethods }));
     } catch (error) {
         dispatch(updateNestedProfileFail(error.response?.data?.message || error.message));
@@ -326,7 +315,7 @@ export const addPaymentMethod = (paymentData) => async (dispatch) => {
 export const deletePaymentMethod = (id) => async (dispatch) => {
     try {
         dispatch(updateNestedProfileRequest());
-        const { data } = await axios.delete(`/api/v1/payment-method/${id}`, { withCredentials: true });
+        const { data } = await api.delete(`/api/v1/payment-method/${id}`);
         dispatch(updateNestedProfileSuccess({ paymentMethods: data.paymentMethods }));
     } catch (error) {
         dispatch(updateNestedProfileFail(error.response?.data?.message || error.message));
@@ -336,7 +325,7 @@ export const deletePaymentMethod = (id) => async (dispatch) => {
 export const toggleWishlist = (productId) => async (dispatch) => {
     try {
         dispatch(updateNestedProfileRequest());
-        const { data } = await axios.put(`/api/v1/wishlist`, { productId }, { withCredentials: true });
+        const { data } = await api.put(`/api/v1/wishlist`, { productId });
         dispatch(updateNestedProfileSuccess({ wishlist: data.wishlist }));
     } catch (error) {
         dispatch(updateNestedProfileFail(error.response?.data?.message || error.message));
@@ -346,7 +335,7 @@ export const toggleWishlist = (productId) => async (dispatch) => {
 export const updatePreferences = (preferences) => async (dispatch) => {
     try {
         dispatch(updateNestedProfileRequest());
-        const { data } = await axios.put(`/api/v1/preferences`, preferences, { withCredentials: true });
+        const { data } = await api.put(`/api/v1/preferences`, preferences);
         dispatch(updateNestedProfileSuccess({ preferences: data.preferences }));
     } catch (error) {
         dispatch(updateNestedProfileFail(error.response?.data?.message || error.message));
@@ -356,7 +345,7 @@ export const updatePreferences = (preferences) => async (dispatch) => {
 export const updateSettings = (settings) => async (dispatch) => {
     try {
         dispatch(updateNestedProfileRequest());
-        const { data } = await axios.put(`/api/v1/settings`, settings, { withCredentials: true });
+        const { data } = await api.put(`/api/v1/settings`, settings);
         dispatch(updateNestedProfileSuccess({ settings: data.settings }));
     } catch (error) {
         dispatch(updateNestedProfileFail(error.response?.data?.message || error.message));
