@@ -1,9 +1,8 @@
 services:
   - type: web
-    name: vipstore-ecom
+    name: ecommerce-site
     env: node
     plan: free
-    rootDir: Ecommerce-Website
     buildCommand: cd frontend && npm ci && GENERATE_SOURCEMAP=false npm run build && cd ../backend && npm ci
     startCommand: node backend/server.js
     healthCheckPath: /api/v1/
