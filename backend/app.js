@@ -38,6 +38,11 @@ app.use(passport.initialize());
 // Uploads (images)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Health check for Render
+app.get("/api/v1/", (req, res) => {
+  res.status(200).json({ success: true, message: "API is running" });
+});
+
 // API routes
 app.use("/api/v1", products);
 app.use("/api/v1", auth);
